@@ -26,7 +26,7 @@ export function QuizShell({
   const router = useRouter()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<string, QuestionAnswer>>(
-    Object.fromEntries(questions.map((q) => [q.id, { own_value: null, predicted_value: null }]))
+    Object.fromEntries(questions.map((q) => [q.id, { own_value: null, own_label: null, predicted_value: null, predicted_label: null }]))
   )
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)

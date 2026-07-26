@@ -6,7 +6,9 @@ import { MCInput } from './MCInput'
 
 export interface QuestionAnswer {
   own_value: number | null
+  own_label: string | null
   predicted_value: number | null
+  predicted_label: string | null
 }
 
 interface QuestionCardProps {
@@ -26,8 +28,8 @@ export function QuestionCard({
   onAnswerChange,
   partnerName,
 }: QuestionCardProps) {
-  const setOwn = (v: number) => onAnswerChange({ ...answer, own_value: v })
-  const setPredicted = (v: number) => onAnswerChange({ ...answer, predicted_value: v })
+  const setOwn = (v: number, l?: string) => onAnswerChange({ ...answer, own_value: v, own_label: l ?? null })
+  const setPredicted = (v: number, l?: string) => onAnswerChange({ ...answer, predicted_value: v, predicted_label: l ?? null })
 
   return (
     <div className="space-y-8">
@@ -51,8 +53,8 @@ export function QuestionCard({
         ) : (
           <MCInput
             options={question.options!}
-            value={answer.own_value}
-            onChange={setOwn}
+            selectedLabel={answer.own_label}
+            onChange={(v, l) => setOwn(v, l)}
             label=""
           />
         )}
@@ -70,8 +72,8 @@ export function QuestionCard({
         ) : (
           <MCInput
             options={question.options!}
-            value={answer.predicted_value}
-            onChange={setPredicted}
+            selectedLabel={answer.predicted_label}
+            onChange={(v, l) => setPredicted(v, l)}
             label=""
           />
         )}

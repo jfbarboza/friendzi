@@ -4,12 +4,12 @@ import type { MCOption } from '@/types'
 
 interface MCInputProps {
   options: MCOption[]
-  value: number | null
-  onChange: (v: number) => void
+  selectedLabel: string | null
+  onChange: (value: number, label: string) => void
   label: string
 }
 
-export function MCInput({ options, value, onChange, label }: MCInputProps) {
+export function MCInput({ options, selectedLabel, onChange, label }: MCInputProps) {
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{label}</p>
@@ -18,10 +18,10 @@ export function MCInput({ options, value, onChange, label }: MCInputProps) {
           <button
             key={opt.label}
             type="button"
-            onClick={() => onChange(opt.value)}
+            onClick={() => onChange(opt.value, opt.label)}
             className={[
               'flex items-start gap-3 p-3 rounded-lg border text-left transition-all',
-              value === opt.value
+              selectedLabel === opt.label
                 ? 'bg-foreground text-background border-foreground'
                 : 'bg-background text-foreground border-border hover:border-foreground',
             ].join(' ')}
