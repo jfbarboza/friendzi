@@ -31,6 +31,15 @@ export async function DELETE(
 
   const { id } = await params
   const supabase = createServiceClient()
+
+  // Delete sessions first (answers + reports cascade from sessions)
+  const { error: sessErr } = await supabase
+    .from('sessions')
+    .delete()
+    .eq('question_set_id', id)
+  if (sessErr) return NextResponse.json({ error: sessErr.message }, { status: 500 })
+
+  // Now delete the question set (clusters + questions cascade)
   const { error } = await supabase.from('question_sets').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
