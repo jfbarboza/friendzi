@@ -4,7 +4,7 @@ import type { CreateSessionResponse } from '@/types'
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { question_set_slug, p1_name } = body
+  const { question_set_slug, p1_name, p2_name } = body
 
   if (!question_set_slug) {
     return NextResponse.json({ error: 'question_set_slug is required' }, { status: 400 })
@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
     .insert({
       question_set_id: qs.id,
       p1_name: p1_name?.trim() || null,
+      p2_name: p2_name?.trim() || null,
       status: 'waiting_p2',
     })
     .select('id, p1_token, p2_token')

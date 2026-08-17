@@ -14,6 +14,7 @@ interface QuestionSet {
 export default function HomePage() {
   const router = useRouter()
   const [name, setName] = useState('')
+  const [friendName, setFriendName] = useState('')
   const [questionSets, setQuestionSets] = useState<QuestionSet[]>([])
   const [selectedSlug, setSelectedSlug] = useState<string>('')
   const [loading, setLoading] = useState(false)
@@ -45,6 +46,7 @@ export default function HomePage() {
         body: JSON.stringify({
           question_set_slug: selectedSlug,
           p1_name: name.trim() || 'Player 1',
+          p2_name: friendName.trim() || null,
         }),
       })
 
@@ -88,6 +90,19 @@ export default function HomePage() {
               placeholder="Anonymous"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-foreground"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground block mb-1.5">
+              Your friend's name (optional)
+            </label>
+            <input
+              type="text"
+              placeholder="Anonymous"
+              value={friendName}
+              onChange={(e) => setFriendName(e.target.value)}
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-foreground"
             />
           </div>
