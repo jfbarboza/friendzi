@@ -1,13 +1,12 @@
-// YYOSD — Yin Yang Operating System Diagnostic
-// 50 questions across 7 clusters.
+// Deep Exploration — 50-question YYOSD instrument.
 // MC options carry a pre-mapped `value` (1–10) for unified scoring.
 // narrative_tags drive the template-based narrative engine.
 
 export const YYOSD_SEED = {
-  name: 'Yin Yang Operating System Diagnostic',
+  name: 'Deep Exploration',
   description:
-    'A structured analysis of operating system compatibility across 50 questions in seven clusters: epistemology, conflict architecture, justice, civilization, identity, politics, and relational diagnostics.',
-  slug: 'yyosd',
+    'A rigorous 50-question analysis of operating system compatibility across seven clusters: epistemology, conflict architecture, justice, civilization, identity, politics, and relational diagnostics.',
+  slug: 'deep-exploration',
   clusters: [
     { name: 'Truth, Reality & Epistemology', order_index: 0 },
     { name: 'Conflict Architecture', order_index: 1 },

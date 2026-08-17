@@ -14,7 +14,7 @@ interface QuestionSet {
 export default function AdminQuestionSetsPage() {
   const [sets, setSets] = useState<QuestionSet[]>([])
   const [loading, setLoading] = useState(true)
-  const [seeding, setSeeding] = useState(false)
+  const [seeding, setSeeding] = useState<string | null>(null)
   const [adminToken, setAdminToken] = useState('')
   const [message, setMessage] = useState<string | null>(null)
 
@@ -25,18 +25,17 @@ export default function AdminQuestionSetsPage() {
     setLoading(false)
   }
 
-  useEffect(() => {
-    fetchSets()
-  }, [])
+  useEffect(() => { fetchSets() }, [])
 
-  const seedYYOSD = async () => {
+  const seedSet = async (slug: string) => {
     if (!adminToken) return alert('Enter admin token first')
-    setSeeding(true)
-    const res = await fetch(`/api/admin/seed?token=${adminToken}`, { method: 'POST' })
+    setSeeding(slug)
+    setMessage(null)
+    const res = await fetch(`/api/admin/seed?token=${adminToken}&slug=${slug}`, { method: 'POST' })
     const data = await res.json()
     setMessage(data.message ?? data.error)
     await fetchSets()
-    setSeeding(false)
+    setSeeding(null)
   }
 
   const deleteSet = async (id: string) => {
@@ -45,6 +44,19 @@ export default function AdminQuestionSetsPage() {
     await fetch(`/api/question-sets/${id}?token=${adminToken}`, { method: 'DELETE' })
     await fetchSets()
   }
+
+  const SEEDS = [
+    {
+      slug: 'breaking-the-ice',
+      label: 'Seed Breaking the Ice',
+      detail: '25 icebreaker questions across personality, social style, and habits.',
+    },
+    {
+      slug: 'deep-exploration',
+      label: 'Seed Deep Exploration',
+      detail: '50 rigorous questions across epistemology, conflict, justice, civilization, identity, and politics.',
+    },
+  ]
 
   return (
     <main className="max-w-3xl mx-auto px-4 py-12 space-y-8">
@@ -64,25 +76,40 @@ export default function AdminQuestionSetsPage() {
         />
       </div>
 
-      <div className="border rounded-xl p-5 space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Seed Default Set</p>
+      <div className="border rounded-xl p-5 space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Seed Question Sets</p>
         <p className="text-sm text-muted-foreground">
-          Seeds the YYOSD 50-question instrument (idempotent — safe to run multiple times).
+          All seeds are idempotent — safe to run multiple times.
         </p>
-        <Button onClick={seedYYOSD} disabled={seeding} variant="outline">
-          {seeding ? 'Seeding…' : 'Seed YYOSD'}
-        </Button>
-        {message && <p className="text-sm text-emerald-600">{message}</p>}
+        <div className="space-y-3">
+          {SEEDS.map((s) => (
+            <div key={s.slug} className="flex items-center justify-between gap-4 rounded-lg border p-4">
+              <div>
+                <p className="text-sm font-medium">{s.label}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{s.detail}</p>
+              </div>
+              <Button
+                onClick={() => seedSet(s.slug)}
+                disabled={seeding !== null}
+                variant="outline"
+                className="shrink-0"
+              >
+                {seeding === s.slug ? 'Seeding…' : 'Seed'}
+              </Button>
+            </div>
+          ))}
+        </div>
+        {message && <p className="text-sm text-emerald-600 dark:text-emerald-400">{message}</p>}
       </div>
 
       <div className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Question Sets ({sets.length})
+          Active Question Sets ({sets.length})
         </p>
         {loading ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
         ) : sets.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No question sets yet. Seed the YYOSD to get started.</p>
+          <p className="text-sm text-muted-foreground">No question sets yet. Seed one above to get started.</p>
         ) : (
           <div className="space-y-2">
             {sets.map((s) => (
