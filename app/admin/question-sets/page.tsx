@@ -52,8 +52,13 @@ export default function AdminQuestionSetsPage() {
       detail: '25 icebreaker questions across personality, social style, and habits.',
     },
     {
-      slug: 'deep-exploration',
-      label: 'Seed Deep Exploration',
+      slug: 'inner-compass',
+      label: 'Seed Inner Compass',
+      detail: '30 self-awareness questions across decision-making, relationships, growth, risk, and meaning.',
+    },
+    {
+      slug: 'discover-your-truth',
+      label: 'Seed Discover Your Truth',
       detail: '50 rigorous questions across epistemology, conflict, justice, civilization, identity, and politics.',
     },
   ]

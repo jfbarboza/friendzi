@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { AnimatePresence, motion } from 'framer-motion'
 import type { Question } from '@/types'
 import { QuestionCard, type QuestionAnswer } from './QuestionCard'
 import { Progress } from '@/components/ui/progress'
@@ -25,6 +26,7 @@ export function QuizShell({
 }: QuizShellProps) {
   const router = useRouter()
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [direction, setDirection] = useState<1 | -1>(1)
   const [answers, setAnswers] = useState<Record<string, QuestionAnswer>>(
     Object.fromEntries(questions.map((q) => [q.id, { own_value: null, own_label: null, predicted_value: null, predicted_label: null }]))
   )
@@ -44,12 +46,16 @@ export function QuizShell({
 
   const handleNext = () => {
     if (currentIndex < questions.length - 1) {
+      setDirection(1)
       setCurrentIndex((i) => i + 1)
     }
   }
 
   const handleBack = () => {
-    if (currentIndex > 0) setCurrentIndex((i) => i - 1)
+    if (currentIndex > 0) {
+      setDirection(-1)
+      setCurrentIndex((i) => i - 1)
+    }
   }
 
   const handleSubmit = async () => {
@@ -87,9 +93,9 @@ export function QuizShell({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Progress bar */}
-      <div className="sticky top-0 z-10 bg-background border-b">
+      <div className="sticky top-0 z-10 bg-black/30 backdrop-blur-sm border-b border-white/10">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-4">
           <span className="text-xs text-muted-foreground shrink-0">
             {currentIndex + 1} / {questions.length}
@@ -99,15 +105,26 @@ export function QuizShell({
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-10">
-        <QuestionCard
-          question={current}
-          questionNumber={currentIndex + 1}
-          totalQuestions={questions.length}
-          answer={currentAnswer}
-          onAnswerChange={handleAnswerChange}
-          partnerName={partnerName}
-        />
+      <div className="max-w-2xl mx-auto px-4 py-10 overflow-hidden">
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={currentIndex}
+            custom={direction}
+            initial={{ x: direction * 60, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: direction * -60, opacity: 0 }}
+            transition={{ duration: 0.22, ease: 'easeInOut' }}
+          >
+            <QuestionCard
+              question={current}
+              questionNumber={currentIndex + 1}
+              totalQuestions={questions.length}
+              answer={currentAnswer}
+              onAnswerChange={handleAnswerChange}
+              partnerName={partnerName}
+            />
+          </motion.div>
+        </AnimatePresence>
 
         {error && (
           <p className="mt-4 text-sm text-destructive">{error}</p>

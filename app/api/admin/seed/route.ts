@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { YYOSD_SEED } from '@/lib/seeds/yyosd'
 import { BTI_SEED } from '@/lib/seeds/breaking-the-ice'
+import { IC_SEED } from '@/lib/seeds/inner-compass'
 
 const SEEDS = {
-  'deep-exploration': YYOSD_SEED,
+  'discover-your-truth': YYOSD_SEED,
   'breaking-the-ice': BTI_SEED,
+  'inner-compass': IC_SEED,
 } as const
 
 type SeedSlug = keyof typeof SEEDS

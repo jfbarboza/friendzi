@@ -42,7 +42,7 @@ export function QuestionCard({
       </div>
 
       {/* Column F — own answer */}
-      <div className="rounded-xl border p-5 space-y-4">
+      <div className="rounded-xl border border-white/20 bg-white/8 backdrop-blur-sm p-5 space-y-4">
         <p className="text-sm font-medium">
           <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground block mb-1">
             Column F — Your answer
@@ -61,7 +61,7 @@ export function QuestionCard({
       </div>
 
       {/* Column G — predicted answer */}
-      <div className="rounded-xl border border-dashed p-5 space-y-4">
+      <div className="rounded-xl border border-dashed border-white/25 bg-white/5 backdrop-blur-sm p-5 space-y-4">
         <p className="text-sm font-medium text-muted-foreground">
           <span className="text-xs font-semibold uppercase tracking-widest block mb-1">
             Column G — What will {partnerName} answer?

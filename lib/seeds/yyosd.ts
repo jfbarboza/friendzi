@@ -1,12 +1,12 @@
-// Deep Exploration — 50-question YYOSD instrument.
+// Discover Your Truth — 50-question YYOSD instrument.
 // MC options carry a pre-mapped `value` (1–10) for unified scoring.
 // narrative_tags drive the template-based narrative engine.
 
 export const YYOSD_SEED = {
-  name: 'Deep Exploration',
+  name: 'Discover Your Truth',
   description:
     'A rigorous 50-question analysis of operating system compatibility across seven clusters: epistemology, conflict architecture, justice, civilization, identity, politics, and relational diagnostics.',
-  slug: 'deep-exploration',
+  slug: 'discover-your-truth',
   clusters: [
     { name: 'Truth, Reality & Epistemology', order_index: 0 },
     { name: 'Conflict Architecture', order_index: 1 },

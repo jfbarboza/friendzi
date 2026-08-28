@@ -17,10 +17,10 @@ export function ScaleInput({ value, onChange, label }: ScaleInputProps) {
             type="button"
             onClick={() => onChange(n)}
             className={[
-              'w-10 h-10 rounded-md text-sm font-semibold border transition-all',
+              'w-10 h-10 rounded-md text-sm font-semibold border transition-all duration-150',
               value === n
-                ? 'bg-foreground text-background border-foreground'
-                : 'bg-background text-foreground border-border hover:border-foreground',
+                ? 'bg-primary text-primary-foreground border-primary shadow-md scale-110'
+                : 'bg-white/5 text-foreground border-border hover:border-primary/60 hover:bg-white/8',
             ].join(' ')}
           >
             {n}
