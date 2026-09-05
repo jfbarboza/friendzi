@@ -1,14 +1,17 @@
+import React from 'react'
 import type { ClusterScore } from '@/types'
 import { gapToColor } from '@/lib/scoring/grades'
+import type { NarrativeJSON } from '@/lib/engine/narrative'
 
 interface ClusterTableProps {
   clusters: ClusterScore[]
   gpa: number
   letterGrade: string
   score: number
+  narrativeInsights?: NarrativeJSON['cluster_insights'] | null
 }
 
-export function ClusterTable({ clusters, gpa, letterGrade, score }: ClusterTableProps) {
+export function ClusterTable({ clusters, gpa, letterGrade, score, narrativeInsights }: ClusterTableProps) {
   return (
     <div className="space-y-6">
       {/* GPA summary */}
@@ -40,18 +43,30 @@ export function ClusterTable({ clusters, gpa, letterGrade, score }: ClusterTable
           </tr>
         </thead>
         <tbody>
-          {clusters.map((c, i) => (
-            <tr key={c.cluster_id ?? i} className="border-b last:border-0">
-              <td className="py-3 pr-4">{c.cluster_name}</td>
-              <td className="py-3 text-right">
-                <GapBadge gap={c.avg_gap} />
-              </td>
-              <td className="py-3 text-right text-muted-foreground">{c.match_percent}%</td>
-              <td className="py-3 text-right font-semibold">
-                <GradeBadge grade={c.grade} />
-              </td>
-            </tr>
-          ))}
+          {clusters.map((c, i) => {
+            const insight = narrativeInsights?.find(n => n.cluster_name === c.cluster_name)
+            return (
+              <React.Fragment key={c.cluster_id ?? i}>
+                <tr className="border-b last:border-0">
+                  <td className="py-3 pr-4">{c.cluster_name}</td>
+                  <td className="py-3 text-right">
+                    <GapBadge gap={c.avg_gap} />
+                  </td>
+                  <td className="py-3 text-right text-muted-foreground">{c.match_percent}%</td>
+                  <td className="py-3 text-right font-semibold">
+                    <GradeBadge grade={c.grade} />
+                  </td>
+                </tr>
+                {insight && (
+                  <tr className="border-b last:border-0">
+                    <td colSpan={4} className="px-2 pb-3 text-xs text-foreground/75 italic leading-relaxed">
+                      {insight.text}
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
+            )
+          })}
         </tbody>
       </table>
     </div>

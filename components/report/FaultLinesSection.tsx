@@ -2,14 +2,16 @@ import type { QuestionGap } from '@/types'
 import { gapToColor } from '@/lib/scoring/grades'
 import { getFaultLines, getFrictionZones } from '@/lib/scoring/algorithm'
 import type { ReportData } from '@/types'
+import type { NarrativeJSON } from '@/lib/engine/narrative'
 
 interface FaultLinesSectionProps {
   report: ReportData
   p1Name: string
   p2Name: string
+  narrativeFaultLines?: NarrativeJSON['fault_lines'] | null
 }
 
-export function FaultLinesSection({ report, p1Name, p2Name }: FaultLinesSectionProps) {
+export function FaultLinesSection({ report, p1Name, p2Name, narrativeFaultLines }: FaultLinesSectionProps) {
   const faultLines = getFaultLines(report)
   const frictionZones = getFrictionZones(report)
 
@@ -22,7 +24,13 @@ export function FaultLinesSection({ report, p1Name, p2Name }: FaultLinesSectionP
           </h3>
           <div className="space-y-3">
             {faultLines.map((g) => (
-              <GapRow key={g.question_id} gap={g} p1Name={p1Name} p2Name={p2Name} />
+              <GapRow
+                key={g.question_id}
+                gap={g}
+                p1Name={p1Name}
+                p2Name={p2Name}
+                narrativeText={narrativeFaultLines?.find(n => n.question_text === g.question_text)?.text}
+              />
             ))}
           </div>
         </div>
@@ -35,7 +43,13 @@ export function FaultLinesSection({ report, p1Name, p2Name }: FaultLinesSectionP
           </h3>
           <div className="space-y-3">
             {frictionZones.map((g) => (
-              <GapRow key={g.question_id} gap={g} p1Name={p1Name} p2Name={p2Name} />
+              <GapRow
+                key={g.question_id}
+                gap={g}
+                p1Name={p1Name}
+                p2Name={p2Name}
+                narrativeText={narrativeFaultLines?.find(n => n.question_text === g.question_text)?.text}
+              />
             ))}
           </div>
         </div>
@@ -48,10 +62,12 @@ function GapRow({
   gap,
   p1Name,
   p2Name,
+  narrativeText,
 }: {
   gap: QuestionGap
   p1Name: string
   p2Name: string
+  narrativeText?: string
 }) {
   const color = gapToColor(gap.belief_gap)
   const borderMap = {
@@ -73,6 +89,9 @@ function GapRow({
         </span>
         <span className="font-semibold">Gap: {gap.belief_gap.toFixed(1)}</span>
       </div>
+      {narrativeText && (
+        <p className="mt-2 text-xs text-foreground/75 italic leading-relaxed">{narrativeText}</p>
+      )}
     </div>
   )
 }

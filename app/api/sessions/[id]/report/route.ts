@@ -25,5 +25,10 @@ export async function GET(
     .eq('id', sessionId)
     .single()
 
-  return NextResponse.json({ ...report, p1_name: session?.p1_name, p2_name: session?.p2_name })
+  return NextResponse.json({
+    ...report,
+    p1_name: session?.p1_name,
+    p2_name: session?.p2_name,
+    narrative_json: report.narrative_json ?? null,
+  })
 }

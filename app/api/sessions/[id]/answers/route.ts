@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { computeReport } from '@/lib/scoring/algorithm'
+import { generateNarrative } from '@/lib/engine/narrative'
 import type { Answer, Cluster, Question } from '@/types'
 
 interface AnswerPayload {
@@ -97,9 +98,14 @@ async function generateAndCacheReport(
   sessionId: string,
   questionSetId: string
 ) {
-  // Fetch all questions + clusters for this set
-  const [{ data: questions }, { data: clusters }, { data: allAnswers }] =
+  // Fetch questions, clusters, answers, and report_strategy in parallel
+  const [{ data: questionSet }, { data: questions }, { data: clusters }, { data: allAnswers }, { data: session }] =
     await Promise.all([
+      supabase
+        .from('question_sets')
+        .select('report_strategy')
+        .eq('id', questionSetId)
+        .single(),
       supabase
         .from('questions')
         .select('*')
@@ -114,6 +120,11 @@ async function generateAndCacheReport(
         .from('answers')
         .select('*')
         .eq('session_id', sessionId),
+      supabase
+        .from('sessions')
+        .select('p1_name, p2_name')
+        .eq('id', sessionId)
+        .single(),
     ])
 
   if (!questions || !clusters || !allAnswers) return
@@ -144,4 +155,18 @@ async function generateAndCacheReport(
     score: report.score,
     generated_at: report.generated_at,
   })
+
+  // Dispatch to AI narrative engine if configured — fire-and-forget so the
+  // player's submit response is not blocked by the Anthropic call latency.
+  if (questionSet?.report_strategy === 'engine') {
+    const p1Name = session?.p1_name ?? 'Player 1'
+    const p2Name = session?.p2_name ?? 'Player 2'
+    void generateNarrative(report, p1Name, p2Name).then(async (narrative) => {
+      if (!narrative) return
+      await supabase
+        .from('reports')
+        .update({ narrative_json: narrative })
+        .eq('session_id', sessionId)
+    })
+  }
 }

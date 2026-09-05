@@ -3,6 +3,7 @@
 import type { ReportData } from '@/types'
 import { PROFILE_LABELS } from '@/lib/scoring/grades'
 import { generateBottomLine } from '@/lib/scoring/narrative'
+import type { NarrativeJSON } from '@/lib/engine/narrative'
 import { SummaryNumbers } from './SummaryNumbers'
 import { ClusterTable } from './ClusterTable'
 import { FaultLinesSection } from './FaultLinesSection'
@@ -17,6 +18,7 @@ interface ReportPageProps {
   report: ReportData
   p1Name: string
   p2Name: string
+  narrative?: NarrativeJSON | null
 }
 
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
@@ -33,7 +35,7 @@ function Section({ label, children }: { label: string; children: React.ReactNode
   )
 }
 
-export function ReportPage({ report, p1Name, p2Name }: ReportPageProps) {
+export function ReportPage({ report, p1Name, p2Name, narrative }: ReportPageProps) {
   const profile = PROFILE_LABELS[report.profile]
   const { headline, paragraphs } = generateBottomLine(report, p1Name, p2Name)
 
@@ -77,17 +79,18 @@ export function ReportPage({ report, p1Name, p2Name }: ReportPageProps) {
           gpa={report.gpa}
           letterGrade={report.letter_grade}
           score={report.score}
+          narrativeInsights={narrative?.cluster_insights}
         />
       </Section>
 
       {/* Section 3: Agreement */}
       <Section label="Section Three · Areas of Genuine Agreement">
-        <AgreementTable report={report} p1Name={p1Name} p2Name={p2Name} />
+        <AgreementTable report={report} p1Name={p1Name} p2Name={p2Name} narrativeStrengths={narrative?.strengths} />
       </Section>
 
       {/* Section 4: Fault lines */}
       <Section label="Section Four · The Fault Lines">
-        <FaultLinesSection report={report} p1Name={p1Name} p2Name={p2Name} />
+        <FaultLinesSection report={report} p1Name={p1Name} p2Name={p2Name} narrativeFaultLines={narrative?.fault_lines} />
       </Section>
 
       {/* Section 5: OS Topology */}
@@ -124,14 +127,29 @@ export function ReportPage({ report, p1Name, p2Name }: ReportPageProps) {
 
       {/* Section 9: Bottom line */}
       <Section label="Friendzi Bottom Line Recommendation">
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold leading-tight">{headline}</h2>
-          {paragraphs.map((p, i) => (
-            <p key={i} className="text-muted-foreground leading-relaxed">
-              {p}
-            </p>
-          ))}
-        </div>
+        {narrative ? (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold leading-tight">{narrative.bottom_line}</h2>
+            <p className="text-muted-foreground leading-relaxed">{narrative.summary.text}</p>
+            {narrative.conversation_starter && (
+              <div className="border-l-4 border-emerald-500 pl-4 py-2 mt-2">
+                <p className="text-xs font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-1">
+                  Conversation Starter
+                </p>
+                <p className="text-sm italic text-muted-foreground">{narrative.conversation_starter}</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold leading-tight">{headline}</h2>
+            {paragraphs.map((p, i) => (
+              <p key={i} className="text-muted-foreground leading-relaxed">
+                {p}
+              </p>
+            ))}
+          </div>
+        )}
       </Section>
 
       {/* Appendix */}
