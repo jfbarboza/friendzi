@@ -64,8 +64,6 @@ export default function StartPage() {
     }
   }
 
-  const selectedSet = questionSets.find((qs) => qs.slug === selectedSlug)
-
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md space-y-8">
@@ -119,24 +117,37 @@ export default function StartPage() {
                 <a href="/admin/question-sets" className="underline">Seed one →</a>
               </p>
             ) : (
-              <>
-                <select
-                  value={selectedSlug}
-                  onChange={(e) => setSelectedSlug(e.target.value)}
-                  className="w-full rounded-lg border border-white/20 bg-white/10 text-foreground placeholder:text-white/40 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent"
-                >
-                  {questionSets.map((qs) => (
-                    <option key={qs.id} value={qs.slug}>
-                      {qs.name}
-                    </option>
-                  ))}
-                </select>
-                {selectedSet?.description && (
-                  <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                    {selectedSet.description}
-                  </p>
-                )}
-              </>
+              <div className="space-y-2">
+                {questionSets.map((qs) => {
+                  const isSelected = selectedSlug === qs.slug
+                  return (
+                    <button
+                      key={qs.id}
+                      type="button"
+                      onClick={() => setSelectedSlug(qs.slug)}
+                      className={`w-full text-left rounded-lg border px-4 py-3 transition-colors ${
+                        isSelected
+                          ? 'border-emerald-500/70 bg-emerald-500/10'
+                          : 'border-white/20 bg-white/5 hover:bg-white/10'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-sm font-medium">{qs.name}</span>
+                        <span className={`w-4 h-4 rounded-full border-2 flex-shrink-0 transition-colors ${
+                          isSelected
+                            ? 'border-emerald-500 bg-emerald-500'
+                            : 'border-white/30'
+                        }`} />
+                      </div>
+                      {qs.description && (
+                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                          {qs.description}
+                        </p>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
             )}
           </div>
 
