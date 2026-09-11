@@ -80,14 +80,26 @@ export async function POST(
       ? session.status === 'complete' ? 'complete' : 'p1_submitted'
       : 'complete'
 
-  await supabase
-    .from('sessions')
-    .update({ status: newStatus, [nameField]: player_name?.trim() || null })
-    .eq('id', sessionId)
-
-  // If both players have now submitted, compute and cache the report
   if (newStatus === 'complete') {
+    // Save player 2's name first, but hold the 'complete' status until the
+    // report (including any AI narrative) is fully ready. This keeps player 1
+    // on the waiting page until the report is actually ready to show.
+    await supabase
+      .from('sessions')
+      .update({ [nameField]: player_name?.trim() || null })
+      .eq('id', sessionId)
+
     await generateAndCacheReport(supabase, sessionId, session.question_set_id)
+
+    await supabase
+      .from('sessions')
+      .update({ status: 'complete' })
+      .eq('id', sessionId)
+  } else {
+    await supabase
+      .from('sessions')
+      .update({ status: newStatus, [nameField]: player_name?.trim() || null })
+      .eq('id', sessionId)
   }
 
   return NextResponse.json({ ok: true, status: newStatus })
@@ -156,17 +168,15 @@ async function generateAndCacheReport(
     generated_at: report.generated_at,
   })
 
-  // Dispatch to AI narrative engine if configured — fire-and-forget so the
-  // player's submit response is not blocked by the Anthropic call latency.
   if (questionSet?.report_strategy === 'engine') {
     const p1Name = session?.p1_name ?? 'Player 1'
     const p2Name = session?.p2_name ?? 'Player 2'
-    void generateNarrative(report, p1Name, p2Name).then(async (narrative) => {
-      if (!narrative) return
+    const narrative = await generateNarrative(report, p1Name, p2Name)
+    if (narrative) {
       await supabase
         .from('reports')
         .update({ narrative_json: narrative })
         .eq('session_id', sessionId)
-    })
+    }
   }
 }

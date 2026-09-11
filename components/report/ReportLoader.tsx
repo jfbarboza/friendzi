@@ -11,39 +11,31 @@ interface ReportLoaderProps {
   p2Name: string
 }
 
-const MAX_ATTEMPTS = 15
-const POLL_INTERVAL_MS = 3000
-
 export function ReportLoader({ sessionId, p1Name, p2Name }: ReportLoaderProps) {
   const [report, setReport] = useState<(ReportData & { narrative_json: NarrativeJSON }) | null>(null)
   const [timedOut, setTimedOut] = useState(false)
 
   useEffect(() => {
-    let stopped = false
-    let attempts = 0
+    let cancelled = false
 
-    async function poll() {
-      while (!stopped && attempts < MAX_ATTEMPTS) {
-        attempts++
-        try {
-          const res = await fetch(`/api/sessions/${sessionId}/report`)
-          if (res.ok) {
-            const data = await res.json()
-            if (data.narrative_json) {
-              setReport(data)
-              return
-            }
+    async function generate() {
+      try {
+        const res = await fetch(`/api/sessions/${sessionId}/report/regenerate`, { method: 'POST' })
+        if (!cancelled && res.ok) {
+          const data = await res.json()
+          if (data.narrative_json) {
+            setReport(data)
+            return
           }
-        } catch {
-          // network hiccup — keep polling
         }
-        await new Promise(r => setTimeout(r, POLL_INTERVAL_MS))
+      } catch {
+        // network error
       }
-      if (!stopped) setTimedOut(true)
+      if (!cancelled) setTimedOut(true)
     }
 
-    poll()
-    return () => { stopped = true }
+    generate()
+    return () => { cancelled = true }
   }, [sessionId])
 
   if (timedOut) {
