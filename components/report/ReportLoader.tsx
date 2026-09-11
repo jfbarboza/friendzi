@@ -11,9 +11,20 @@ interface ReportLoaderProps {
   p2Name: string
 }
 
+const MESSAGES = [
+  'The report is on its way!',
+  'Reading between the lines…',
+  'Almost there — good things take a moment.',
+  'Crunching the numbers and the vibes…',
+  'Your results are worth the wait.',
+]
+
+const MESSAGE_INTERVAL_MS = 3500
+
 export function ReportLoader({ sessionId, p1Name, p2Name }: ReportLoaderProps) {
   const [report, setReport] = useState<(ReportData & { narrative_json: NarrativeJSON }) | null>(null)
   const [timedOut, setTimedOut] = useState(false)
+  const [messageIndex, setMessageIndex] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -37,6 +48,14 @@ export function ReportLoader({ sessionId, p1Name, p2Name }: ReportLoaderProps) {
     generate()
     return () => { cancelled = true }
   }, [sessionId])
+
+  useEffect(() => {
+    if (report || timedOut) return
+    const interval = setInterval(() => {
+      setMessageIndex((i) => (i + 1) % MESSAGES.length)
+    }, MESSAGE_INTERVAL_MS)
+    return () => clearInterval(interval)
+  }, [report, timedOut])
 
   if (timedOut) {
     return (
@@ -66,9 +85,11 @@ export function ReportLoader({ sessionId, p1Name, p2Name }: ReportLoaderProps) {
             <div className="absolute inset-0 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-xl font-semibold">Generating your report</h1>
+            <h1 className="text-xl font-semibold transition-all">{MESSAGES[messageIndex]}</h1>
             <p className="text-muted-foreground text-sm">
-              Analyzing {p1Name} & {p2Name}&apos;s answers…
+              {p1Name === 'Player 1' && p2Name === 'Player 2'
+                ? 'Analyzing your answers…'
+                : `Analyzing ${p1Name} & ${p2Name}’s answers…`}
             </p>
           </div>
         </div>
