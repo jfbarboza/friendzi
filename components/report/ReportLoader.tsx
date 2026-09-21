@@ -22,7 +22,7 @@ const MESSAGES = [
 const MESSAGE_INTERVAL_MS = 3500
 
 export function ReportLoader({ sessionId, p1Name, p2Name }: ReportLoaderProps) {
-  const [report, setReport] = useState<(ReportData & { narrative_json: NarrativeJSON }) | null>(null)
+  const [report, setReport] = useState<(ReportData & { narrative_json?: NarrativeJSON | null }) | null>(null)
   const [timedOut, setTimedOut] = useState(false)
   const [messageIndex, setMessageIndex] = useState(0)
 
@@ -34,7 +34,8 @@ export function ReportLoader({ sessionId, p1Name, p2Name }: ReportLoaderProps) {
         const res = await fetch(`/api/sessions/${sessionId}/report/regenerate`, { method: 'POST' })
         if (!cancelled && res.ok) {
           const data = await res.json()
-          if (data.narrative_json) {
+          // Show the report even if narrative_json is null — better than stuck loader
+          if (data.session_id) {
             setReport(data)
             return
           }
@@ -102,7 +103,7 @@ export function ReportLoader({ sessionId, p1Name, p2Name }: ReportLoaderProps) {
       report={report}
       p1Name={p1Name}
       p2Name={p2Name}
-      narrative={report.narrative_json}
+      narrative={report.narrative_json ?? null}
     />
   )
 }

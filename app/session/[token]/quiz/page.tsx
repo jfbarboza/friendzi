@@ -5,10 +5,14 @@ import type { Question } from '@/types'
 
 interface Props {
   params: Promise<{ token: string }>
+  searchParams: Promise<{ dev?: string }>
 }
 
-export default async function QuizPage({ params }: Props) {
+export default async function QuizPage({ params, searchParams }: Props) {
   const { token } = await params
+  const { dev } = await searchParams
+  const adminToken = process.env.ADMIN_TOKEN
+  const isDevMode = Boolean(adminToken && dev === adminToken)
   const supabase = createServiceClient()
 
   // Resolve session from token (works for both p1 and p2)
@@ -66,6 +70,7 @@ export default async function QuizPage({ params }: Props) {
       questions={questions as Question[]}
       playerName={playerName}
       partnerName={partnerName}
+      devMode={isDevMode}
     />
   )
 }

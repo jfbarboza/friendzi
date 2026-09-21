@@ -15,6 +15,7 @@ interface QuizShellProps {
   playerName: string
   partnerName: string
   clusterName?: string
+  devMode?: boolean
 }
 
 export function QuizShell({
@@ -23,6 +24,7 @@ export function QuizShell({
   questions,
   playerName,
   partnerName,
+  devMode = false,
 }: QuizShellProps) {
   const router = useRouter()
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -55,6 +57,41 @@ export function QuizShell({
     if (currentIndex > 0) {
       setDirection(-1)
       setCurrentIndex((i) => i - 1)
+    }
+  }
+
+  const handleDevAutoFill = async () => {
+    const randomVal = () => Math.ceil(Math.random() * 10)
+    const filled = Object.fromEntries(
+      questions.map((q) => [
+        q.id,
+        { own_value: randomVal(), own_label: null, predicted_value: randomVal(), predicted_label: null },
+      ])
+    )
+    setAnswers(filled)
+    setSubmitting(true)
+    setError(null)
+    const payload = questions.map((q) => ({
+      question_id: q.id,
+      own_value: filled[q.id].own_value!,
+      predicted_value: filled[q.id].predicted_value!,
+    }))
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}/answers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, player_name: playerName, answers: payload }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Submission failed')
+      if (data.status === 'complete') {
+        router.push(`/report/${sessionId}`)
+      } else {
+        router.push(`/session/${token}/waiting`)
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Submission failed')
+      setSubmitting(false)
     }
   }
 
@@ -140,18 +177,31 @@ export function QuizShell({
             ← Back
           </Button>
 
-          {isLast ? (
-            <Button
-              onClick={handleSubmit}
-              disabled={!isAnswered || submitting}
-            >
-              {submitting ? 'Submitting…' : 'Submit Answers'}
-            </Button>
-          ) : (
-            <Button onClick={handleNext} disabled={!isAnswered}>
-              Next →
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {devMode && (
+              <Button
+                variant="outline"
+                onClick={handleDevAutoFill}
+                disabled={submitting}
+                className="text-xs border-dashed border-amber-500/50 text-amber-500 hover:bg-amber-500/10"
+              >
+                ⚡ Dev: Auto-fill & Submit
+              </Button>
+            )}
+
+            {isLast ? (
+              <Button
+                onClick={handleSubmit}
+                disabled={!isAnswered || submitting}
+              >
+                {submitting ? 'Submitting…' : 'Submit Answers'}
+              </Button>
+            ) : (
+              <Button onClick={handleNext} disabled={!isAnswered}>
+                Next →
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>

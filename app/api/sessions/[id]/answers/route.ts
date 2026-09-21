@@ -81,9 +81,6 @@ export async function POST(
       : 'complete'
 
   if (newStatus === 'complete') {
-    // Save player 2's name first, but hold the 'complete' status until the
-    // report (including any AI narrative) is fully ready. This keeps player 1
-    // on the waiting page until the report is actually ready to show.
     await supabase
       .from('sessions')
       .update({ [nameField]: player_name?.trim() || null })
@@ -110,7 +107,6 @@ async function generateAndCacheReport(
   sessionId: string,
   questionSetId: string
 ) {
-  // Fetch questions, clusters, answers, and report_strategy in parallel
   const [{ data: questionSet }, { data: questions }, { data: clusters }, { data: allAnswers }, { data: session }] =
     await Promise.all([
       supabase
