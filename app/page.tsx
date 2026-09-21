@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { HowToPlayModal } from '@/components/HowToPlayModal'
 
 export default function SplashPage() {
   return (
@@ -70,7 +71,8 @@ export default function SplashPage() {
         {/* Gradient fade so the bar blends into the image above it */}
         <div className="h-16 bg-gradient-to-t from-black/70 to-transparent" />
         <div className="bg-black/60 backdrop-blur-md border-t border-white/10 py-4 px-6 pointer-events-auto">
-          <div className="max-w-2xl mx-auto flex items-center justify-center">
+          <div className="max-w-2xl mx-auto flex items-center justify-center gap-4">
+            <HowToPlayModal />
             <Link
               href="/start"
               className="inline-block px-16 py-4 bg-[#ED254E] text-white text-xl font-bold rounded-full shadow-2xl hover:bg-[#d41f45] active:scale-95 transition-all duration-150"
