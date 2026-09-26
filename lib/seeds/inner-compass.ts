@@ -176,7 +176,7 @@ export const IC_SEED = {
     {
       cluster_index: 3,
       order_index: 1,
-      text: "I've taken a risk that scared me and it didn't.",
+      text: "I've taken a risk that scared me and it didn't pay off.",
       type: 'SCALE' as const,
       narrative_tags: ['risk', 'failure'],
       options: null,

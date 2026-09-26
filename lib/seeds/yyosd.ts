@@ -483,7 +483,7 @@ export const YYOSD_SEED = {
     {
       cluster_index: 5,
       order_index: 2,
-      text: 'America is dramatically better today than it was in the 1960s, and frameworks suggesting otherwise are either historically dishonest or clinically distorted.',
+      text: 'Life in America is dramatically better for Black Americans today than it was in the 1960s, and frameworks suggesting otherwise are either historically dishonest or clinically distorted.',
       type: 'SCALE' as const,
       narrative_tags: ['race', 'progress_narrative'],
       options: null,
@@ -507,7 +507,7 @@ export const YYOSD_SEED = {
     {
       cluster_index: 5,
       order_index: 5,
-      text: 'I personally respect or approve of people who protest the American flag in those ways.',
+      text: 'I personally respect or approve of people who protest the American flag by burning it or kneeling in front of it.',
       type: 'SCALE' as const,
       narrative_tags: ['patriotism', 'free_speech'],
       options: null,
